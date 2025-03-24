@@ -149,8 +149,18 @@ AUTH_USER_MODEL = 'member.User'  # 유저 모델 지정
 # 이런식으로 아이디랑 비밀번호 설정해놓고 같이 깃에 올라가면 누군가 볼 수도있고
 # 비공개 리파짓토리라도 중간에 탈취당할 위험이 있음.
 # 그래서 환경변수를 사용해서 정보를 내 컴퓨터에서 읽어오도록함.
-EMAIL_HOST_USER = 'test@gmail.com'
-EMAIL_HOST_PASSWORD = '1111'
+# EMAIL_HOST_USER = 'test@gmail.com'
+# EMAIL_HOST_PASSWORD = '1111'
+
+# Email
+# from django.core.mail.backends.smtp import EmailBackend
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.naver.com' # 네이버 환결설정에서 볼 수 있음.
+EMAIL_USE_TLS = True  # 보안연결
+EMAIL_PORT = 587  # 네이버 메일 환경설정에서 확인 가능
+EMAIL_HOST_USER = SECRET["email"]["user"]
+EMAIL_HOST_PASSWORD =  SECRET["email"]["password"]
+
 
 # .config_secret 폴더 만들고
 # 폴더에 secret.json 만들고

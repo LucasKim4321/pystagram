@@ -79,6 +79,9 @@ class User(AbstractBaseUser):  # 기본 기능은 상속받아서 사용
 # 기존에 존재하는 컬럼 is_superuser, is_superuser가 가진 기능을 사용하려고 사용.
 # 혹은  is_superuser = models.BooleanField(default = False) 이렇게 필드를 만들어 줘도 되지만 해당 필드를 사용하지 않을거기 때문에 @property사용
 
+# AbstractBaseUser: Django의 추상 기반 클래스 중 하나로, 비밀번호 및 인증 관련 필드와 메서드만을 제공하며, 사용자 정의 필드를 추가하여 완전한 User 모델을 구성할 수 있습니다.
+
 # superuser 생성
 # python manage.py createsuperuser
 # 커스텀 유저 모델에 유저 이름과 이메일을 모두 이메일로 지정했기 때문에 유저 이름을 묻지 않고 이메일만 물어봄
+
