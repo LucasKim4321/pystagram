@@ -7,8 +7,11 @@ from django.contrib.auth.forms import UserCreationForm
 # Auth유저를 바꿨기 때문에
 User = get_user_model()
 
+# UserCreationForm을 상속하여, 이메일과 닉네임 기반 회원가입 폼을 커스터마이징한 것.
 class SignupForm(UserCreationForm):
 
+    # 폼 필드의 속성을 수정
+    # User 모델에 존재하지않지만 폼에서 필요한 필드를 추가하기 위해 사용
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # class_default_fields = ('password1', 'password2')
@@ -21,7 +24,7 @@ class SignupForm(UserCreationForm):
             else:
                 self.fields[field].label = '비밀번호 확인'
 
-
+    # User 모델을 사용해 폼에 포함시킬 필드 및 속성 설정
     class Meta(UserCreationForm.Meta):
         model = User
         fields = ('email', 'nickname',)
@@ -44,7 +47,8 @@ class SignupForm(UserCreationForm):
             )
         }
 
-class jLoginForm(forms.Form):
+# 로그인 폼을 정의함. 사용자 인증을 위해 사용.
+class LoginForm(forms.Form):
     email = forms.CharField(
         label = '이메일',
         required = True,
@@ -58,22 +62,32 @@ class jLoginForm(forms.Form):
     password = forms.CharField(
         label="패스워드",
         required = True,
-        widget = forms.EmailInput(
+        widget = forms.PasswordInput(
             attrs = {
-                    'placeholder' : 'example@example.com',
+                    'placeholder' : 'password',
                     'class' : 'form-control',
             }
         )
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = None
+
+    # 전체 폼의 유효성 검사를 담당.
+    # is_valid할 때 clean매서드가 호출됨
     def clean(self):
-        cleaned_data = super().clean()
+        cleaned_data = super().clean() # is_valid 후 clean한 데이터가 들어옴.
         email = cleaned_data.get('email')
         password = cleaned_data.get('password')
 
-        user = authenticate(email=email, password=password)
+        # authenticate 이메일(또는 사용자 이름)과 비밀번호로 인증하기 위해 사용하는 함수
+        # 인증 후 유저 객체 또는 None 반환
+        self.user = authenticate(email=email, password=password)
+        # user = authenticate(email=email, password=password)
 
-        if not user.is_active:
+        if not self.user.is_active:
             raise forms.ValidationError('유저가 인증되지 않았습니다.')
 
         return cleaned_data
+        # return cleaned_data.get('email')

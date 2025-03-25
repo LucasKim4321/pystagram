@@ -1,0 +1,16 @@
+
+{% for field in form %}
+    <div class="form-group row mb-2">
+        <labe class="form-label col-md-2" for="{{ field.auto_id }}">{{ field.label }}</labe>
+        <div class="col-md-10">
+            {{ field }}
+        </div>
+        {% for error in field.errors %}
+            <span class="text-danger">{{ error }}</span>
+        {% endfor %}
+    </div>
+{%  endfor %}
+{% for error in form.non_field_error %}
+    <p class="text-danger">{{ error }}</p>
+{% endfor %}
+<button class="btn btn-success opacity-50">회원가입</button>

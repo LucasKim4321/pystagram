@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # own
     'member',
+    'post',
     # 3rd party
     'django_extensions',
 ]
@@ -138,6 +139,10 @@ STATICFILES_DIRS = [
 # 배포할 때 사용하는 경로
 STATIC_ROOT = BASE_DIR / '.static_root'
 
+# Media
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
@@ -161,10 +166,13 @@ EMAIL_PORT = 587  # 네이버 메일 환경설정에서 확인 가능
 EMAIL_HOST_USER = SECRET["email"]["user"]
 EMAIL_HOST_PASSWORD =  SECRET["email"]["password"]
 
-
 # .config_secret 폴더 만들고
 # 폴더에 secret.json 만들고
 # .gitignore에 추가한 후 관리
 # print(SECRET['DB']['HOST'])
 # print(SECRET['DB2']['HOST'])
 # 이렇게 쓸 수도있고 dotenv를 통해 관리할 수도 있음
+
+LOGIN_URL = '/login/'
+LOGOUT_REDIRECT_URL = '/login/'
+# LOGOUT_REDIRECT_URL = '/'

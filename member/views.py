@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, login
 from django.core import signing
 from django.core.signing import TimestampSigner, SignatureExpired
 from django.http import HttpResponseRedirect
@@ -7,7 +7,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import FormView
 
-from member.forms import SignupForm
+from member.forms import SignupForm, LoginForm
 from utils.email import send_email
 
 User = get_user_model()
@@ -76,7 +76,23 @@ def verify_email(request):
     user.is_active = True
     user.save()
 
-    # TODO: 나중에 Redirect 시키기
-    # return redirect(reverse('login'))  # 원래 해야하는 동작
-    return render(request, 'auth/email_verified_done.html', {'user':user})
-#
+    return redirect(reverse('login'))  # 원래 해야하는 동작
+    # return render(request, 'auth/email_verified_done.html', {'user':user})
+
+class LoginView(FormView):
+    template_name = 'auth/login.html'
+    form_class = LoginForm
+    success_url = reverse_lazy('main')
+
+    def form_valid(self, form):
+        # email = form.cleaned_data['email']
+        # user = User.objects.get(email=email)
+        user = form.user  # 폼에 저장된 유저 객체를 불러옴
+        login(self.request, user)  # 해당 유저로 로그인
+        # print(f'login {user.email}')
+
+        next_page = self.request.GET.get('next')
+        if next_page:
+            return HttpResponseRedirect(next_page)
+
+        return HttpResponseRedirect(self.get_success_url())
