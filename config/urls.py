@@ -43,9 +43,13 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='logout'),
     # path('account', include('django.contrib.auth.urls')),
 
+    # search
+    path('search/', post_views.search, name='search'),
+
     # include
     path('comment/', include('post.comment_urls')),
-    path('profile/', include('member.urls'))
+    path('profile/', include('member.urls')),
+    path('oauth/', include('member.oauth_urls')),
 ]
 
 

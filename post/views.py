@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect, JsonResponse, Http404
@@ -9,7 +10,7 @@ from django.views.generic import ListView, CreateView, UpdateView
 from post.forms import PostForm, PostImageFormSet, CommentForm
 from post.models import Post, Like
 
-
+User = get_user_model()
 class PostListView(ListView):
     queryset = Post.objects.all().select_related('user').prefetch_related('images', 'comments', 'likes')
     template_name = 'post/list.html'
@@ -86,3 +87,21 @@ def toggle_like(request):
         like.delete()
 
     return JsonResponse({'created': created})
+
+def search(request):
+    search_type = request.GET.get('type')  # user, tag
+    q = request.GET.get('q', '')
+
+    if search_type in ['user', 'tag']:
+        if search_type == 'user':
+            object_list = User.objects.filter(nickname__icontains=q)
+        else:
+            object_list = Post.objects.filter(tags__tag=q)
+
+        context = {
+            'object_list': object_list,
+        }
+
+        return render(request, f'search/search_{search_type}.html', context)
+
+    return render(request, 'search/search.html')

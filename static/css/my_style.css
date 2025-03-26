@@ -14,3 +14,8 @@ textarea.form-control {
     background-color: lightgreen !important;
     color: white !important;
 }
+
+.post-image {
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+}
