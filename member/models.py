@@ -1,6 +1,9 @@
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.db import models
 
+from utils.models import TimestampModel
+
+
 # 사용자 지정 메니져
 class UserManager(BaseUserManager):
     def create_user(self, email, password):
@@ -38,6 +41,15 @@ class User(AbstractBaseUser):  # 기본 기능은 상속받아서 사용
     # is_staff = models.BooleanField(default = False)  # is_staff 기능
     # is_superuser = models.BooleanField(default = False)  # is_superuser 기능
     nickname = models.CharField('nickname', max_length=20, unique=True)
+    # 나를 팔로우 하는 사람이 팔로워
+    # 내가 팔로우 하는 사람이 팔로잉
+    # User N:N User
+    # a <=> b symmetrical = True
+    # a => b symmetrical = False
+    following = models.ManyToManyField(
+        'self', symmetrical=False, related_name='followers',
+        through='UserFollowing', through_fields=('from_user', 'to_user')
+    )  # 'self' User가 User를 받을 수 없어서 self사용
 
     # 사용자 지정 메니져
     # User.objects.all()   <- objects가 메니져
@@ -85,3 +97,15 @@ class User(AbstractBaseUser):  # 기본 기능은 상속받아서 사용
 # python manage.py createsuperuser
 # 커스텀 유저 모델에 유저 이름과 이메일을 모두 이메일로 지정했기 때문에 유저 이름을 묻지 않고 이메일만 물어봄
 
+class UserFollowing(TimestampModel):
+    # 팔로워
+    to_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_followers')
+    # 팔로잉
+    from_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_following')
+
+    class Meta:
+        # 두 값을 합쳐서 unique
+        unique_together = ('to_user', 'from_user')
+        # to_user 1, from_user 2
+        # to_user 1, from_user 3
+        # to_user 1, from_user 2 => 오류'

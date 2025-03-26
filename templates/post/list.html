@@ -1,79 +1,134 @@
-{# templates/post/list.html #}
-
-
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_tag %}
 
 {% block style %}
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
-  <style>
-    .post-image {
-        aspect-ratio: 1 / 1;
-        object-fit: cover;
-    }
-  </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+    <style>
+        .post-image {
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
-  <div class="row">
-    <div class="text-end col-10 offset-1 col-lg-6 offset-lg-3 opacity-50">
-        <a class="btn btn-sm btn-info" href="{% url 'create' %}">생성</a>
-    </div>
-    <div class="col-10 offset-1 col-lg-6 offset-lg-3 infinite-container">
-      {% for post in object_list %}
-        <div class="border-bottom my-4 infinite-item">
-          <div class="mb-2">
-            <span class="p-2 border rounded-circle me-2">
-              <i class="fa-solid fa-user" style="width: 16px; padding-left: 1px;"></i>
-            </span>
-              {{ post.user.nickname }}
-              {% if post.user == request.user %}
-                  <a href="{% url 'update' post.pk %}" class="btn btn-warning btn-sm opacity-50 float-end">수정</a>
-              {% endif %}
-          </div>
-          <div class="swiper" style="max-height: 500px;">
-            <div class="border-1 swiper-wrapper">
-              {% for post_image in post.images.all %}
-                <div class="swiper-slide">
-                  <img class="img-fluid post-image" src="{{ post_image.image.url }}" alt="">
-                </div>
-              {% endfor %}
-            </div>
-            <div class="swiper-pagination"></div>
-          </div>
-{#         TODO: like  #}
-          <div class="my-2">
-            {{ post.content | linebreaksbr }}
-          </div>
+    <div class="row">
+        <div class="text-end col-10 offset-1 col-lg-6 offset-lg-3 opacity-50">
+            <a class="btn btn-sm btn-info" href="{% url 'create' %}">생성</a>
         </div>
-      {% endfor %}
-      {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}" class="infinite-more-link d-none"></a>
-      {% endif %}
+        <div class="col-10 offset-1 col-lg-6 offset-lg-3 infinite-container">
+            {% for post in object_list %}
+                <div class="border-bottom my-4 pb-2 infinite-item">
+                    <div class="mb-2">
+                        <span class="p-2 border rounded-circle me-2">
+                            <i class="fa-solid fa-user" style="width: 16px; padding-left: 3px;"></i>
+                        </span>
+                        <a href="{% url 'profile:detail' post.user.nickname %}" class="text-decoration-none text-black">
+                            {{ post.user.nickname }}
+                        </a>
+                        {% if post.user == request.user %}
+                            <a href="{% url 'update' post.pk %}" class="btn btn-warning btn-sm opacity-50 float-end">수정</a>
+                        {% endif %}
+                    </div>
+                    <div class="swiper" style="max-height: 500px;">
+                        <div class="border-1 swiper-wrapper">
+                        {% for post_image in post.images.all %}
+                            <div class="swiper-slide">
+                                <img class="img-fluid post-image" src="{{ post_image.image.url }}" alt="">
+                            </div>
+                        {% endfor %}
+                        </div>
+                        <div class="swiper-pagination"></div>
+                    </div>
+                    <div class="mt-1">
+                        <button class="border-0 bg-transparent rounded-3 like-btn{% add_like_class request.user post.likes.all %}" data-post_pk="{{ post.pk }}">
+                            <i class="fa-regular fa-heart"></i>
+                        </button>
+                        <button class="border-0 bg-transparent rounded-3 add-comment">
+                            <i class="fa-regular fa-comment"></i>
+                        </button>
+                        <div>
+                            {{ post.likes.count }} likes
+                        </div>
+                        <div class="my-2">
+                        {{ post.content | linebreaksbr }}
+                        </div>
+                    </div>
+                    <div class="comment-form d-none">
+                        {% if request.user.is_authenticated %}
+                            <form action="{% url 'comment:create' post.pk %}" method="post">
+                                {% csrf_token %}
+                                {{ comment_form.as_p }}
+                                <button class="btn btn-primary btn-sm opacity-50">생성</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                    <div class="mt-2">
+                        {% for comment in post.comments.all %}
+                            <p>
+                                <span class="px-1 py-0 border rounded-circle me-2">
+                                    <i class="fa-solid fa-user fa-xs" style="width:8px; padding-left: 1px;"></i>
+                                </span>
+                                <strong>{{ comment.user }}</strong> {{ comment.content | linebreaksbr }}
+                            </p>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="infinite-more-link d-none"></a>
+            {% endif %}
+        </div>
     </div>
-  </div>
 {% endblock %}
 
 {% block js %}
-  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-  <script src="{% static 'js/jquery.min.js' %}"></script>
-  <script src="{% static 'waypoints/jquery.waypoints.min.js' %}"></script>
-  <script src="{% static 'waypoints/infinite.min.js' %}"></script>
-  <script>
-    const swiper = new Swiper('.swiper', {
-      // Optional parameters
-      direction: 'horizontal',
-      loop: false,  // true 일 시 무한 스크롤
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'waypoints/jquery.waypoints.min.js' %}"></script>
+    <script src="{% static 'waypoints/infinite.min.js' %}"></script>
+    <script>
+        const swiper = new Swiper('.swiper', {
+            // Optional parameters
+            direction: 'horizontal',
+            loop: false,  // true 일 시 무한 스크롤
 
-      // If we need pagination
-      pagination: {
-        el: '.swiper-pagination',
-      },
-    });
+            // If we need pagination
+            pagination: {
+                el: '.swiper-pagination',
+            },
+            });
 
-	  let infinite = new Waypoint.Infinite({
-      element: $('.infinite-container')[0],
-      offset: 'bottom-in-view'
-    })
-  </script>
+        let infinite = new Waypoint.Infinite({
+            element: $('.infinite-container')[0],
+            offset: 'bottom-in-view'
+        })
+        $('.add-comment').on('click', function() {
+            {#$(this).parents('.infinite-item').find('.comment-form').removeClass('d-none')#}
+            $(this).parents('.infinite-item').find('.comment-form').toggleClass('d-none')
+        })
+        $('.like-btn').on('click', function() {
+            {#console.log($(this).data('post_pk'))#}
+            const this_btn = $(this);
+            $.ajax({
+                url: '{% url "toggle_like" %}',
+                method: 'post',
+                data: {
+                    'post_pk': $(this).data('post_pk')
+                },
+                success: function(res) {
+                    console.log('success',res)
+                    if(res.created) {
+                        this_btn.addClass('text-danger')
+                    } else {
+                        this_btn.removeClass('text-danger')
+                    }
+                },
+                error: function() {
+                    console.log('error')
+                }
+            })
+        })
+    </script>
 {% endblock %}

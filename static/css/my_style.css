@@ -3,3 +3,14 @@
 textarea.form-control {
     resize: none;
 }
+.like-btn {
+    color: gray;
+}
+
+.add-comment {
+    color: lightgreen !important;
+}
+.add-comment:hover {
+    background-color: lightgreen !important;
+    color: white !important;
+}
