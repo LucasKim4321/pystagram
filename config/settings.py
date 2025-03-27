@@ -180,4 +180,7 @@ LOGOUT_REDIRECT_URL = '/login/'
 
 # OAuth
 NAVER_CLIENT_ID = SECRET["naver"]["client_id"]
-NAVER_SECRET = SECRET["naver"]["secret"]
+NAVER_CLIENT_SECRET = SECRET["naver"]["secret"]
+
+GITHUB_CLIENT_ID = SECRET["github"]["client_id"]
+GITHUB_CLIENT_SECRET = SECRET["github"]["secret"]
