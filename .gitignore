@@ -1,7 +1,7 @@
-.venv/*
-.idea/*
-__pycache__/*
+.venv/
+.idea/
+__pycache__/
 .DS_Store
-.vscode/*
+.vscode/
 .python-version
-.config_secret/*
+.config_secret/
